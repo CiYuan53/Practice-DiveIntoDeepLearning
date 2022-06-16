@@ -20,9 +20,8 @@ if __name__ == "__main__":
 
     for epoch in range(3):
         for X, y in data_iter:
-            l: torch.Tensor = loss(net(X), y)
             optimizer.zero_grad()
-            l.backward()
+            loss(net(X), y).backward()
             optimizer.step()
 
         print(f"epoch {epoch + 1}: loss {loss(net(features), labels) :f}")

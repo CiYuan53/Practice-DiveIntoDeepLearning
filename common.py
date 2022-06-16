@@ -61,18 +61,18 @@ def train_ch3(net: nn.Sequential, loss: nn.Module, optimizer: torch.optim.Optimi
         if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
             y_hat = y_hat.argmax(1)  # convert into index of the largest element on dim 1
         cmp = y_hat.type(y.dtype) == y  # convert into the same type to avoid weird bug
-        return float(cmp.type(y.dtype).sum())
+        return cmp.type(y.dtype).sum().item()
 
     net.train()
     for epoch in range(num_epochs):
         metric = Accumulator(3)  # loss and accuracy respected to the *train* dataset
         for X, y in train_iter:
+            optimizer.zero_grad()
             y_hat = net(X)
             l: torch.Tensor = loss(y_hat, y)
-            optimizer.zero_grad()
             l.backward()  # *need* to do mean() if reduction was set to 'none'
             optimizer.step()
-            metric.add(float(l), count_correct(y_hat, y), y.numel())
+            metric.add(l.item(), count_correct(y_hat, y), y.numel())
 
         train_loss = metric[0] / metric[2]
         train_acc = metric[1] / metric[2]
