@@ -136,8 +136,8 @@ def corr2d(X: torch.Tensor, K: torch.Tensor):
     return Y
 
 
-def summary(net: nn.Sequential):
-    X = torch.rand((1, 1, 28, 28))
+def summary(net: nn.Sequential, size: Tuple[int]):
+    X = torch.randn(size)
     for layer in net:
         X: torch.Tensor = layer(X)
         print(f"{layer.__class__.__name__: >8}\t{list(X.shape)}")
