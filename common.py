@@ -27,10 +27,16 @@ def load_data_from_mnist(batch_size=200, resize: int = None):
     trans = transforms.Compose(trans)
 
     mnist_train = datasets.FashionMNIST(
-        "/Users/sunny/Desktop/D2L/data.nosync", True, trans, download=True
+        "/Users/sunny/Desktop/Practice_DiveIntoDeepLearning/data.nosync",
+        True,
+        trans,
+        download=True,
     )
     mnist_test = datasets.FashionMNIST(
-        "/Users/sunny/Desktop/D2L/data.nosync", False, trans, download=True
+        "/Users/sunny/Desktop/Practice_DiveIntoDeepLearning/data.nosync",
+        False,
+        trans,
+        download=True,
     )
     return (
         data.DataLoader(mnist_train, batch_size, True),
@@ -85,10 +91,18 @@ def train(
     elif init_weight == "ch6":
         init_method = init_weights_ch6
     # use m1 gpu if existed
-    use_mps = not force_cpu and torch.has_mps
+    use_gpu = not force_cpu
+    gpu = None
+    if use_gpu:
+        if torch.has_cuda:
+            gpu = "cuda"
+        elif torch.has_mps:
+            gpu = "mps"
+        else:
+            use_gpu = False
 
-    if use_mps:
-        net = net.to("mps")
+    if use_gpu:
+        net = net.to(gpu)
     net.apply(init_method)
     loss = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(net.parameters(), learning_rate)
@@ -97,8 +111,8 @@ def train(
     for epoch in range(num_epochs):
         metric = Accumulator(3)  # loss and accuracy respected to the *train* dataset
         for X, y in train_iter:
-            if use_mps:
-                X, y = X.to("mps"), y.to("mps")
+            if use_gpu:
+                X, y = X.to(gpu), y.to(gpu)
 
             optimizer.zero_grad()
             y_hat = net(X)
@@ -117,8 +131,8 @@ def train(
     net.eval()
     with torch.no_grad():
         for X, y in test_iter:
-            if use_mps:
-                X, y = X.to("mps"), y.to("mps")
+            if use_gpu:
+                X, y = X.to(gpu), y.to(gpu)
             metric.add(count_correct(net(X), y), y.numel())
 
     test_acc = metric[0] / metric[1]
