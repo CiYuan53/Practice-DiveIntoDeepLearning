@@ -27,13 +27,13 @@ def load_data_from_mnist(batch_size=200, resize: int = None):
     trans = transforms.Compose(trans)
 
     mnist_train = datasets.FashionMNIST(
-        "/Users/sunny/Desktop/Practice_DiveIntoDeepLearning/data.nosync",
+        "./data.nosync",
         True,
         trans,
         download=True,
     )
     mnist_test = datasets.FashionMNIST(
-        "/Users/sunny/Desktop/Practice_DiveIntoDeepLearning/data.nosync",
+        "./data.nosync",
         False,
         trans,
         download=True,
